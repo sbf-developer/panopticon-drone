@@ -21,7 +21,9 @@ Sentinel is not a cinematic drone demo with animation curves. It is a determinis
 
 ## Quick start
 
-Requirements: Node.js 20+ and a browser with WebGL 2.
+**Live demo:** [sbf-developer.github.io/A69](https://sbf-developer.github.io/A69/) — no install required.
+
+Requirements for local development: Node.js 20+ and a browser with WebGL 2.
 
 ```bash
 npm install
