@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.npm-cache/
+artifacts/
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.env
+.env.*
+!.env.example
