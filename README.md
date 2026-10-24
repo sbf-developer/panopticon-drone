@@ -2,8 +2,8 @@
 
 **A browser-native, physics-driven autonomy testbed for visual target following.**
 
-[![CI](https://github.com/sbf-developer/A69/actions/workflows/ci.yml/badge.svg)](https://github.com/sbf-developer/A69/actions/workflows/ci.yml)
-[![Live demo](https://img.shields.io/badge/demo-GitHub%20Pages-6fe3f2)](https://sbf-developer.github.io/A69/)
+[![CI](https://github.com/sbf-developer/autonomous-drone-tracking-simulation/actions/workflows/ci.yml/badge.svg)](https://github.com/sbf-developer/autonomous-drone-tracking-simulation/actions/workflows/ci.yml)
+[![Live demo](https://img.shields.io/badge/demo-GitHub%20Pages-6fe3f2)](https://sbf-developer.github.io/autonomous-drone-tracking-simulation/)
 
 Sentinel is not a cinematic drone demo with animation curves. It is a deterministic simulation of a 2.35 kg quadrotor, a moving ground subject, and the perception / estimation / planning / control stack required to follow that subject. The simulation core is renderer-independent and runs at 240 Hz; the browser is only a view onto snapshots of that core.
 
@@ -27,7 +27,7 @@ Sentinel is not a cinematic drone demo with animation curves. It is a determinis
 
 ## Quick start
 
-**Live demo:** [sbf-developer.github.io/A69](https://sbf-developer.github.io/A69/). No install required.
+**Live demo:** [sbf-developer.github.io/autonomous-drone-tracking-simulation](https://sbf-developer.github.io/autonomous-drone-tracking-simulation/). No install required.
 
 Requirements for local development: Node.js 20+ and a browser with WebGL 2.
 

@@ -6,13 +6,13 @@
   "description": "A browser-based, physics-driven quadrotor autonomy lab for visual target tracking and pursuit.",
   "license": "MIT",
   "author": "Sentinel Autonomy Lab",
-  "homepage": "https://sbf-developer.github.io/A69/",
+  "homepage": "https://sbf-developer.github.io/autonomous-drone-tracking-simulation/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sbf-developer/A69.git"
+    "url": "git+https://github.com/sbf-developer/autonomous-drone-tracking-simulation.git"
   },
   "bugs": {
-    "url": "https://github.com/sbf-developer/A69/issues"
+    "url": "https://github.com/sbf-developer/autonomous-drone-tracking-simulation/issues"
   },
   "keywords": [
     "quadrotor",
