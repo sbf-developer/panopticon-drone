@@ -23,7 +23,7 @@ export const MiniMap = ({ scenario, snapshot }: MiniMapProps) => {
     if (!ctx) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const cssWidth = canvas.parentElement?.clientWidth ?? 280;
-    const cssHeight = 190;
+    const cssHeight = 160;
     if (canvas.width !== Math.floor(cssWidth * dpr) || canvas.height !== Math.floor(cssHeight * dpr)) {
       canvas.width = Math.floor(cssWidth * dpr);
       canvas.height = Math.floor(cssHeight * dpr);
@@ -42,10 +42,10 @@ export const MiniMap = ({ scenario, snapshot }: MiniMapProps) => {
     const px = (x: number): number => offsetX + x * scale;
     const pz = (z: number): number => offsetY + z * scale;
 
-    ctx.fillStyle = '#070c10';
+    ctx.fillStyle = '#0c0e12';
     ctx.fillRect(0, 0, width, height);
     // Tactical grid.
-    ctx.strokeStyle = 'rgba(112, 145, 157, 0.11)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.055)';
     ctx.lineWidth = 1;
     for (let x = -160; x <= 160; x += 40) {
       ctx.beginPath();
@@ -134,7 +134,7 @@ export const MiniMap = ({ scenario, snapshot }: MiniMapProps) => {
       ctx.beginPath();
       ctx.arc(px(track.x), pz(track.z), 6.5, 0, Math.PI * 2);
       ctx.stroke();
-      ctx.fillStyle = '#f4ab63';
+      ctx.fillStyle = '#f6b26b';
       ctx.beginPath();
       ctx.arc(px(track.x), pz(track.z), 2.4, 0, Math.PI * 2);
       ctx.fill();
@@ -145,9 +145,9 @@ export const MiniMap = ({ scenario, snapshot }: MiniMapProps) => {
     ctx.save();
     ctx.translate(px(pos.x), pz(pos.z));
     ctx.rotate(heading);
-    ctx.fillStyle = '#6fe3f2';
-    ctx.shadowColor = '#6fe3f2';
-    ctx.shadowBlur = 7;
+    ctx.fillStyle = '#8de1b4';
+    ctx.shadowColor = '#8de1b4';
+    ctx.shadowBlur = 6;
     ctx.beginPath();
     ctx.moveTo(0, -7);
     ctx.lineTo(5, 5);

@@ -5,106 +5,90 @@ import { formatNumber } from './format';
 
 interface PipelineStage {
   key: string;
-  index: string;
   title: string;
-  detail: string;
   value: string;
-  sub: string;
   icon: typeof Radar;
-  tone: 'good' | 'warn' | 'bad' | 'neutral';
+  tone: 'good' | 'warn' | 'bad';
 }
 
 export const Pipeline = ({ snapshot, stats }: { snapshot: SimulationSnapshot; stats: RuntimeStats }) => {
   const perception = snapshot.perception;
   const control = snapshot.control;
-  const sensorsTone = snapshot.sensors.satellites > 10 ? 'good' : 'warn';
-  const plannerTone =
-    snapshot.planner.status === 'EMERGENCY' || snapshot.planner.status === 'BLOCKED'
-      ? 'bad'
-      : snapshot.planner.status === 'AVOIDING'
-        ? 'warn'
-        : 'good';
   const trackTone =
     perception.trackStatus === 'TRACKING'
       ? 'good'
       : perception.trackStatus === 'COASTING' || perception.trackStatus === 'ACQUIRING'
         ? 'warn'
         : 'bad';
+  const plannerTone =
+    snapshot.planner.status === 'EMERGENCY' || snapshot.planner.status === 'BLOCKED'
+      ? 'bad'
+      : snapshot.planner.status === 'AVOIDING'
+        ? 'warn'
+        : 'good';
   const stages: PipelineStage[] = [
     {
       key: 'sense',
-      index: '01',
-      title: 'SENSE',
-      detail: 'IMU · GNSS · EO',
-      value: `${snapshot.sensors.satellites} SAT`,
-      sub: `IMU 240 · GPS 8 · EO 30`,
+      title: 'Sense',
+      value: `${snapshot.sensors.satellites} sats`,
       icon: Radar,
-      tone: sensorsTone,
+      tone: snapshot.sensors.satellites > 10 ? 'good' : 'warn',
     },
     {
       key: 'estimate',
-      index: '02',
-      title: 'ESTIMATE',
-      detail: '6-STATE EKF / CV TRACK',
-      value: `${formatNumber(snapshot.estimate.positionSigma, 2)} M`,
-      sub: `TRK ${perception.trackStatus}`,
+      title: 'Estimate',
+      value: `${formatNumber(snapshot.estimate.positionSigma, 2)} m`,
       icon: BrainCircuit,
       tone: trackTone,
     },
     {
       key: 'plan',
-      index: '03',
-      title: 'PLAN',
-      detail: 'MPC / 2.0 S HORIZON',
-      value: snapshot.planner.status,
-      sub: `${snapshot.planner.candidateCount || 82} CAND · ${formatNumber(snapshot.planner.clearance, 1)} M`,
+      title: 'Plan',
+      value: snapshot.planner.status.toLowerCase(),
       icon: SlidersHorizontal,
       tone: plannerTone,
     },
     {
       key: 'control',
-      index: '04',
-      title: 'CONTROL',
-      detail: 'CASCADE / BODY RATE',
+      title: 'Control',
       value: `${formatNumber(control.thrust, 0)} N`,
-      sub: `${formatNumber(control.torque.x, 2)} / ${formatNumber(control.torque.z, 2)} N·M`,
       icon: Cpu,
       tone: control.saturated ? 'warn' : 'good',
     },
     {
       key: 'actuate',
-      index: '05',
-      title: 'ACTUATE',
-      detail: 'X-MIXER / 4 ROTORS',
-      value: `${snapshot.drone.motors.filter((m) => m > 0.2).length}/4`,
-      sub: `MOTOR BUS 240 HZ`,
+      title: 'Actuate',
+      value: `${snapshot.drone.motors.filter((motor) => motor > 0.2).length}/4`,
       icon: Fan,
       tone: snapshot.drone.crashed ? 'bad' : 'good',
     },
   ];
+
   return (
     <div className="pipeline">
-      <div className="pipeline__rail" />
-      {stages.map((stage) => {
-        const Icon = stage.icon;
-        return (
-          <div key={stage.key} className={`pipeline__stage pipeline__stage--${stage.tone}`}>
-            <div className="pipeline__index mono">{stage.index}</div>
-            <div className="pipeline__icon"><Icon size={15} strokeWidth={1.6} /></div>
-            <div className="pipeline__copy">
-              <div className="pipeline__title">{stage.title}<span>{stage.detail}</span></div>
-              <strong>{stage.value}</strong>
-              <em>{stage.sub}</em>
+      <div className="pipeline__heading">
+        <span>Autonomy stack</span>
+        <strong>240 Hz core</strong>
+      </div>
+      <div className="pipeline__stages">
+        {stages.map((stage, index) => {
+          const Icon = stage.icon;
+          return (
+            <div key={stage.key} className="pipeline__stage">
+              <Icon size={14} strokeWidth={1.6} />
+              <div>
+                <span>{stage.title}</span>
+                <strong>{stage.value}</strong>
+              </div>
+              <i className={`pipeline__dot pipeline__dot--${stage.tone}`} />
+              {index < stages.length - 1 ? <b className="pipeline__link" /> : null}
             </div>
-            <span className="pipeline__led" />
-          </div>
-        );
-      })}
-      <div className="pipeline__footer mono">
-        <span>AUTONOMY LOOP</span>
-        <i />
-        <span>{stats.paused ? 'HOLD' : 'RUNNING'}</span>
-        <span className="pipeline__hz">240 HZ CORE</span>
+          );
+        })}
+      </div>
+      <div className="pipeline__state">
+        <i className={stats.paused ? 'is-warn' : 'is-good'} />
+        <span>{stats.paused ? 'Hold' : 'Running'}</span>
       </div>
     </div>
   );

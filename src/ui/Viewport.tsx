@@ -18,10 +18,10 @@ import { formatCompass, formatNumber, statusTone } from './format';
 type ModeButton = { mode: CameraMode; label: string; icon: typeof Orbit };
 
 const MODES: ModeButton[] = [
-  { mode: 'ORBIT', label: 'ORBIT', icon: Orbit },
-  { mode: 'CHASE', label: 'CHASE', icon: Camera },
-  { mode: 'TOP', label: 'MAP', icon: Map },
-  { mode: 'GIMBAL', label: 'GIMBAL', icon: Video },
+  { mode: 'ORBIT', label: 'Orbit camera', icon: Orbit },
+  { mode: 'CHASE', label: 'Chase camera', icon: Camera },
+  { mode: 'TOP', label: 'Map camera', icon: Map },
+  { mode: 'GIMBAL', label: 'Gimbal camera', icon: Video },
 ];
 
 interface ViewportProps {
@@ -64,8 +64,7 @@ export const Viewport = ({
   }, [runtime, debug]);
 
   const tone = statusTone(snapshot.perception.trackStatus);
-  const phase = snapshot.mission.phase;
-  const phaseClass = phase === 'FAILED' ? 'is-bad' : phase === 'LOST' ? 'is-warn' : 'is-good';
+  const phaseClass = snapshot.mission.phase === 'FAILED' ? 'is-bad' : snapshot.mission.phase === 'LOST' ? 'is-warn' : 'is-good';
   const detection = snapshot.perception.detection;
 
   const toggle = (key: keyof DebugOptions): void => {
@@ -74,99 +73,69 @@ export const Viewport = ({
 
   return (
     <div className="viewport">
-      <div className={`viewport__stage ${phase === 'FAILED' ? 'is-failed' : ''}`} ref={stageRef} />
-
+      <div className={`viewport__stage ${snapshot.mission.phase === 'FAILED' ? 'is-failed' : ''}`} ref={stageRef} />
       <div className="viewport__vignette" />
       <div className="viewport__scanlines" />
 
-      <div className="viewport__top-left">
-        <div className="scene-badge">
-          <span className="scene-badge__live"><i /> LIVE SIMULATION</span>
-          <strong>{scenario.code} / {scenario.name.toUpperCase()}</strong>
-          <span className="mono">41.7021° N · 87.6312° W · +{formatNumber(snapshot.drone.altitude, 0)} M</span>
-        </div>
+      <div className="viewport__info">
+        <span className="viewport__live"><i /> Live simulation</span>
+        <strong>{scenario.name}</strong>
+        <small>{scenario.code} / {formatNumber(snapshot.drone.altitude, 0)} m / {formatNumber(stats.fps, 0)} fps</small>
       </div>
 
-      <div className={`viewport__phase ${phaseClass}`}>
-        <span className="micro-label">FLIGHT PHASE</span>
-        <strong>{phase}</strong>
-        <span className={`chip chip--${tone}`}>{snapshot.perception.trackStatus}</span>
+      <div className={`phase-pill ${phaseClass}`}>
+        <i />
+        <span>{snapshot.mission.phase}</span>
+        <em>{snapshot.perception.trackStatus}</em>
       </div>
 
-      <div className="viewport__top-right">
-        <div className="camera-modes" role="group" aria-label="Camera mode">
-          {MODES.map(({ mode, label, icon: Icon }) => (
-            <button
-              type="button"
-              key={mode}
-              className={cameraMode === mode ? 'is-active' : ''}
-              onClick={() => onCameraMode(mode)}
-              title={`${label} camera`}
-            >
-              <Icon size={13} />
-              <span>{label}</span>
-            </button>
-          ))}
-        </div>
+      <div className="camera-modes" role="group" aria-label="Camera mode">
+        {MODES.map(({ mode, label, icon: Icon }) => (
+          <button
+            type="button"
+            key={mode}
+            className={cameraMode === mode ? 'is-active' : ''}
+            onClick={() => onCameraMode(mode)}
+            title={label}
+            aria-label={label}
+          >
+            <Icon size={15} />
+          </button>
+        ))}
       </div>
 
-      <div className="viewport__heading">
-        <div className="heading-readout">
-          <span className="micro-label">HDG</span>
-          <strong>{formatCompass(snapshot.drone.heading)}</strong>
-        </div>
-        <div className="heading-tape">
-          {[-3, -2, -1, 0, 1, 2, 3].map((offset) => {
-            const value = (snapshot.drone.heading + offset * 15 + 360) % 360;
-            return (
-              <span key={offset} className={offset === 0 ? 'is-center' : ''}>
-                {String(Math.round(value / 10) * 10).padStart(3, '0')}
-              </span>
-            );
-          })}
-          <i className="heading-tape__cursor" />
-        </div>
-        <div className="heading-readout heading-readout--right">
-          <span className="micro-label">WIND</span>
-          <strong>{formatNumber(snapshot.wind.speed, 1)}<em>m/s</em></strong>
-        </div>
-      </div>
-
-      <div className="viewport__bottom-left">
+      <div className="viewport__hud">
         <div className="debug-chips">
-          <button type="button" className={debug.plan ? 'is-on' : ''} onClick={() => toggle('plan')}>
-            <Route size={12} /> PLAN
+          <button type="button" className={debug.plan ? 'is-on' : ''} onClick={() => toggle('plan')} title="Planned path">
+            <Route size={14} />
           </button>
-          <button type="button" className={debug.track ? 'is-on' : ''} onClick={() => toggle('track')}>
-            <Crosshair size={12} /> TRACK
+          <button type="button" className={debug.track ? 'is-on' : ''} onClick={() => toggle('track')} title="Target estimate">
+            <Crosshair size={14} />
           </button>
-          <button type="button" className={debug.sensor ? 'is-on' : ''} onClick={() => toggle('sensor')}>
-            <ScanLine size={12} /> SENSOR
+          <button type="button" className={debug.sensor ? 'is-on' : ''} onClick={() => toggle('sensor')} title="Sensor field of view">
+            <ScanLine size={14} />
           </button>
-          <button type="button" className={debug.labels ? 'is-on' : ''} onClick={() => toggle('labels')}>
-            <Layers size={12} /> LABELS
+          <button type="button" className={debug.labels ? 'is-on' : ''} onClick={() => toggle('labels')} title="Labels">
+            <Layers size={14} />
           </button>
         </div>
-        <div className="coordinate-strip">
-          <span className="micro-label">POSITION / LOCAL ENU</span>
-          <strong className="mono">
-            {snapshot.drone.position.x >= 0 ? 'E' : 'W'} {Math.abs(snapshot.drone.position.x).toFixed(1)} ·
-            {' '}{snapshot.drone.position.z >= 0 ? 'S' : 'N'} {Math.abs(snapshot.drone.position.z).toFixed(1)}
-          </strong>
-          <span className="mono subtle-text">AGL {snapshot.drone.agl.toFixed(1)} M</span>
+        <div className="hud-readouts">
+          <div><span>HDG</span><strong>{formatCompass(snapshot.drone.heading)}</strong></div>
+          <div><span>ALT</span><strong>{formatNumber(snapshot.drone.agl, 0)}<em>m</em></strong></div>
+          <div><span>WIND</span><strong>{formatNumber(snapshot.wind.speed, 1)}<em>m/s</em></strong></div>
         </div>
       </div>
 
       <div className="fpv">
         <div className="fpv__header">
           <div className="fpv__title">
-            <Video size={13} />
-            <span>EO / GIMBAL</span>
-            <em>CH 01</em>
+            <Video size={14} />
+            <span>EO feed</span>
+            <em>CH-01</em>
           </div>
           <div className="fpv__status">
             <i className={`fpv__dot fpv__dot--${tone}`} />
-            <span>{snapshot.perception.trackStatus}</span>
+            <span>{snapshot.perception.trackStatus.toLowerCase()}</span>
           </div>
         </div>
         <div className="fpv__screen">
@@ -174,15 +143,15 @@ export const Viewport = ({
           <canvas ref={overlayRef} className="fpv__overlay" />
         </div>
         <div className="fpv__footer">
-          <span>1280 × 720 · 30 HZ</span>
-          <span>{detection.visible ? `RNG ${formatNumber(detection.range, 0)} M` : detection.occluded ? 'LOS BLOCKED' : 'NO CONTACT'}</span>
-          <span className="mono">{formatCompass(snapshot.perception.targetBearing * 180 / Math.PI)}</span>
+          <span>1280 x 720 / 30 Hz</span>
+          <span>{detection.visible ? `${formatNumber(detection.range, 0)} m` : detection.occluded ? 'LOS blocked' : 'No contact'}</span>
+          <span>{formatCompass((snapshot.perception.targetBearing * 180) / Math.PI)}</span>
         </div>
       </div>
 
-      <div className="viewport__footnote">
-        <span>SIMULATION / NOT FLIGHT DATA</span>
-        <span className="mono">{stats.paused ? 'PAUSED' : `${stats.speed.toFixed(1)}× · ${formatNumber(stats.fps, 0)} FPS`}</span>
+      <div className="viewport__tag">
+        <span>Simulation</span>
+        <span>{stats.paused ? 'Hold' : `${stats.speed}x`}</span>
       </div>
     </div>
   );

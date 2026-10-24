@@ -390,100 +390,68 @@ export class SimulationView {
     ctx.clearRect(0, 0, width, height);
     ctx.save();
 
-    ctx.strokeStyle = 'rgba(180, 236, 245, 0.55)';
+    ctx.strokeStyle = 'rgba(232, 240, 242, 0.55)';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(width / 2 - 16, height / 2);
+    ctx.moveTo(width / 2 - 12, height / 2);
     ctx.lineTo(width / 2 - 5, height / 2);
     ctx.moveTo(width / 2 + 5, height / 2);
-    ctx.lineTo(width / 2 + 16, height / 2);
-    ctx.moveTo(width / 2, height / 2 - 14);
+    ctx.lineTo(width / 2 + 12, height / 2);
+    ctx.moveTo(width / 2, height / 2 - 12);
     ctx.lineTo(width / 2, height / 2 - 5);
     ctx.moveTo(width / 2, height / 2 + 5);
-    ctx.lineTo(width / 2, height / 2 + 14);
-    ctx.stroke();
-    ctx.strokeStyle = 'rgba(180, 236, 245, 0.16)';
-    ctx.beginPath();
-    ctx.arc(width / 2, height / 2, 22, 0, Math.PI * 2);
+    ctx.lineTo(width / 2, height / 2 + 12);
     ctx.stroke();
 
     const status = snapshot.perception.trackStatus;
     const color =
       status === 'TRACKING'
-        ? '#7ef0b2'
+        ? '#9be7bd'
         : status === 'COASTING' || status === 'ACQUIRING'
-          ? '#f3c96b'
-          : '#ff8a7a';
+          ? '#f6c97a'
+          : '#ff8c7f';
     const detection = snapshot.perception.detection;
-    const projected = detection.visible ? projectPoint(this.feedCamera, snapshot.targetTruth.position.x, snapshot.targetTruth.position.y + 1.4, snapshot.targetTruth.position.z, width, height) : null;
+    const projected = detection.visible
+      ? projectPoint(
+          this.feedCamera,
+          snapshot.targetTruth.position.x,
+          snapshot.targetTruth.position.y + 1.4,
+          snapshot.targetTruth.position.z,
+          width,
+          height,
+        )
+      : null;
     if (projected) {
       const distance = Math.max(4, snapshot.perception.detection.range);
       const boxHeight = THREE.MathUtils.clamp(
         (3.2 / (2 * distance * Math.tan(this.feedCamera.fov / 2))) * height,
-        26,
-        150,
+        24,
+        130,
       );
       const boxWidth = boxHeight * 1.35;
       const x = projected.x - boxWidth / 2;
       const y = projected.y - boxHeight / 2;
-      const arm = Math.min(boxWidth, boxHeight) * 0.24;
+      const arm = Math.min(boxWidth, boxHeight) * 0.22;
       ctx.strokeStyle = color;
-      ctx.lineWidth = 1.8;
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 9;
+      ctx.lineWidth = 1.4;
       drawBracket(ctx, x, y, boxWidth, boxHeight, arm);
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = 'rgba(4, 9, 12, 0.62)';
-      ctx.fillRect(x, y - 17, 106, 14);
       ctx.fillStyle = color;
-      ctx.font = '600 9px "JetBrains Mono", monospace';
-      ctx.fillText(status === 'TRACKING' ? 'SUBJECT // LOCK' : 'SUBJECT // COAST', x + 5, y - 7);
-      ctx.fillStyle = 'rgba(223, 239, 241, 0.82)';
+      ctx.font = '600 9px "Space Grotesk", sans-serif';
+      ctx.fillText(status === 'TRACKING' ? 'Lock' : 'Coast', x, y - 7);
+      ctx.fillStyle = 'rgba(235, 242, 243, 0.8)';
       ctx.font = '500 9px "JetBrains Mono", monospace';
-      ctx.fillText(`${distance.toFixed(0)} m`, x + boxWidth - 29, y + boxHeight + 12);
+      ctx.fillText(`${distance.toFixed(0)} m`, x + boxWidth - 26, y + boxHeight + 13);
     } else {
-      ctx.fillStyle = 'rgba(4, 9, 12, 0.55)';
-      ctx.fillRect(width / 2 - 70, height / 2 + 30, 140, 16);
-      ctx.fillStyle = detection.occluded ? '#ffb07a' : '#9db4bb';
-      ctx.font = '600 9px "JetBrains Mono", monospace';
+      ctx.fillStyle = detection.occluded ? '#f6c97a' : 'rgba(216, 229, 232, 0.65)';
+      ctx.font = '500 10px "Space Grotesk", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(
-        detection.occluded ? 'LINE OF SIGHT OCCLUDED' : 'SEARCHING FOR SUBJECT',
+        detection.occluded ? 'Line of sight blocked' : 'Searching',
         width / 2,
-        height / 2 + 41,
+        height / 2 + 34,
       );
       ctx.textAlign = 'left';
     }
-
-    ctx.fillStyle = 'rgba(4, 9, 12, 0.48)';
-    ctx.fillRect(10, 10, 136, 20);
-    ctx.fillStyle = '#d9e6e8';
-    ctx.font = '600 9px "JetBrains Mono", monospace';
-    ctx.fillText('GIMBAL / EO', 17, 24);
-    ctx.fillStyle = '#ff6b56';
-    ctx.beginPath();
-    ctx.arc(126, 20, 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = 'rgba(255, 107, 86, 0.9)';
-    ctx.fillText('REC', 133, 24);
-
-    ctx.fillStyle = 'rgba(4, 9, 12, 0.48)';
-    ctx.fillRect(width - 102, 10, 92, 20);
-    ctx.fillStyle = color;
-    ctx.font = '600 9px "JetBrains Mono", monospace';
-    ctx.fillText(status, width - 94, 24);
-
-    ctx.fillStyle = 'rgba(4, 9, 12, 0.55)';
-    ctx.fillRect(10, height - 31, 222, 21);
-    ctx.fillStyle = 'rgba(198, 220, 223, 0.8)';
-    ctx.font = '500 9px "JetBrains Mono", monospace';
-    const az = (snapshot.perception.gimbal.yaw * 180) / Math.PI;
-    const el = (snapshot.perception.gimbal.pitch * 180) / Math.PI;
-    ctx.fillText(
-      `AZ ${az.toFixed(1).padStart(6, '0')}  EL ${el.toFixed(1).padStart(5, '0')}  FOV 38°`,
-      17,
-      height - 17,
-    );
 
     if (snapshot.drone.crashed) {
       ctx.fillStyle = 'rgba(180, 30, 20, 0.16)';

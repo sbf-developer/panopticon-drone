@@ -25,6 +25,7 @@ export const App = () => {
   const [behavior, setBehavior] = useState<FollowBehavior>('PURSUIT');
   const [standoff, setStandoff] = useState(scenario.drone.standoff);
   const [windSpeed, setWindSpeed] = useState(scenario.weather.windSpeed);
+  const [focusMode, setFocusMode] = useState(false);
 
   useEffect(() => {
     setBehavior('PURSUIT');
@@ -67,19 +68,21 @@ export const App = () => {
   }
 
   return (
-    <div className="app">
+    <div className={`app ${focusMode ? 'app--focus' : ''}`}>
       <Header
         scenarios={SCENARIOS}
         scenario={scenario}
         snapshot={data.snapshot}
         stats={data.stats}
+        focusMode={focusMode}
         onScenario={controls.selectScenario}
         onTogglePause={controls.togglePaused}
         onReset={controls.reset}
         onSpeed={controls.setSpeed}
+        onToggleFocus={() => setFocusMode((value) => !value)}
       />
       <main className="workspace">
-        <MissionRail snapshot={data.snapshot} stats={data.stats} scenario={scenario} />
+        <MissionRail snapshot={data.snapshot} scenario={scenario} />
         <section className="center-column">
           <Viewport
             runtime={runtime}
@@ -110,8 +113,6 @@ export const App = () => {
           SIMULATION HALTED: {controls.error.message}
         </div>
       ) : null}
-      <div className="ambient-glow ambient-glow--one" />
-      <div className="ambient-glow ambient-glow--two" />
     </div>
   );
 };
