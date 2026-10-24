@@ -9,6 +9,12 @@ Sentinel is not a cinematic drone demo with animation curves. It is a determinis
 
 ![Sentinel autonomy console](docs/media/sentinel-console.png)
 
+### Focus view
+
+![Sentinel operations console in focus mode](docs/media/sentinel-focus.png)
+
+*Focus mode removes the side panels and gives the live viewport the full window.*
+
 ### Pursuit close-up
 
 ![Sentinel drone pursuing a moving ground vehicle](docs/media/sentinel-pursuit.png)
